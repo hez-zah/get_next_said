@@ -1,4 +1,4 @@
-#include "get_next_line.h"
+#include "get_next_line_bonus.h"
 
 char *get_long_line(int fd,  char *long_line)
 {
@@ -72,39 +72,18 @@ char *rest_long_line(char *long_line, char *line)
 
 char *get_next_line(int fd)
 {
-    static char *long_line;
+    static char *long_line[OPEN_MAX];
     char        *free_lg;
     char *line;
 
     if (BUFFER_SIZE <= 0 || fd < 0 || BUFFER_SIZE > INT_MAX)
         return (NULL);
-    long_line = get_long_line(fd, long_line);
-    if (!long_line)
+    long_line[fd] = get_long_line(fd, long_line[fd]);
+    if (!long_line[fd])
         return (NULL);
-    line = get_line(long_line);
-    free_lg = long_line;
-    long_line = rest_long_line(long_line, line);
+    line = get_line(long_line[fd]);
+    free_lg = long_line[fd];
+    long_line[fd] = rest_long_line(long_line[fd], line);
     free(free_lg);
     return (line);
 }
-
-// void ff_leaks()
-// {
-//     system("leaks a.out");
-// }
-
-// int main()
-// {
-//     int fd = open("said.txt", O_RDWR);
-//     // atexit(ff_leaks);
-//     char *line;
-//     while (1)
-//     {
-//         line = get_next_line(fd);
-//         printf("%s", line);
-//         if (!line)
-//             break ;
-//         free(line);
-//     }
-//     close(fd);
-// }
